@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = process.env.REACT_APP_BACKEND_URL + "api/v1/real-estate" || "http://localhost:5000/api/v1/real-estate";
+const API_URL = process.env.REACT_APP_BACKEND_URL + "api/v1/real-estate";
 
 export const realEstateService = {
   // Get all properties

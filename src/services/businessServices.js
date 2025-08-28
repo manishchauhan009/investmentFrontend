@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const API_URL = "http://localhost:5000/api/v1/businesses"; // Update if your backend URL is different
+const API_URL = process.env.REACT_APP_BACKEND_URL + "api/v1/businesses";
 
 // GET all businesses
 export const getBusinessData = async () => {

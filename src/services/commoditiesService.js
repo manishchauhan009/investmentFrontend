@@ -1,7 +1,7 @@
 // services/commoditiesService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/v1/commodities"; // Update if your server runs on another port
+const API_URL = process.env.REACT_APP_BACKEND_URL + "api/v1/commodities";
 
 export const getCommodities = async () => {
   const response = await axios.get(API_URL);
