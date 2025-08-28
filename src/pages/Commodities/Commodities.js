@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import DarkColors from "../../styles/ColorSchema";
+import Spinner from "../../components/Spinner"; // ✅ Import Spinner
 import {
   getCommodities,
   addCommodity,
@@ -19,7 +20,7 @@ const Commodities = () => {
     const fetchData = async () => {
       try {
         const data = await getCommodities();
-        // Map _id to id if necessary
+        // Normalize id
         const mapped = data.map((c) => ({ ...c, id: c.id ?? c._id }));
         setCommodities(mapped);
       } catch (error) {
@@ -47,7 +48,6 @@ const Commodities = () => {
     const commodity = commodities.find((c) => c.id === id);
     try {
       const updated = await updateCommodity(id, commodity);
-      // Ensure id consistency
       const updatedWithId = { ...updated, id: updated.id ?? updated._id };
       setCommodities((prev) =>
         prev.map((c) => (c.id === id ? updatedWithId : c))
@@ -77,7 +77,7 @@ const Commodities = () => {
     };
     try {
       const created = await addCommodity(newCommodity);
-      const createdWithId = { ...created, id: created.id ?? created._id ?? Date.now() };
+      const createdWithId = { ...created, id: created.id ?? created._id ?? Date.now().toString() };
       setCommodities((prev) => [...prev, createdWithId]);
       setEditingId(createdWithId.id);
     } catch (error) {
@@ -88,18 +88,24 @@ const Commodities = () => {
   const calculateValue = (qty, marketPrice) => qty * marketPrice;
   const calculateProfit = (qty, buyPrice, marketPrice) => qty * (marketPrice - buyPrice);
   const calculateROI = (buyPrice, marketPrice) =>
-    buyPrice > 0 ? (((marketPrice - buyPrice) / buyPrice) * 100).toFixed(2) : 0;
+    buyPrice > 0 ? ((marketPrice - buyPrice) / buyPrice) * 100 : 0;
 
-  if (loading)
-    return <p style={{ color: Colors.textSecondary }}>Loading commodities...</p>;
+   if (loading)
+    return (
+      <DashboardLayout>
+        <div className="flex justify-center items-center h-full">
+          <Spinner />
+        </div>
+      </DashboardLayout>
+    );
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-4 md:p-6 space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold" style={{ color: Colors.secondary }}>
+            <h1 className="text-2xl md:text-3xl font-bold" style={{ color: Colors.secondary }}>
               Commodities
             </h1>
             <p style={{ color: Colors.textSecondary }}>
@@ -115,12 +121,12 @@ const Commodities = () => {
           </button>
         </div>
 
-        {/* Table */}
+        {/* Table (scrollable on small screens) */}
         <div
-          className="p-6 rounded-xl shadow-lg overflow-x-auto"
+          className="p-4 md:p-6 rounded-xl shadow-lg overflow-x-auto"
           style={{ backgroundColor: Colors.card }}
         >
-          <table className="w-full text-sm text-left">
+          <table className="w-full min-w-[800px] text-sm text-left">
             <thead>
               <tr style={{ color: Colors.textPrimary }}>
                 <th className="p-3">Commodity</th>
@@ -143,9 +149,10 @@ const Commodities = () => {
 
                 return (
                   <tr
-                    key={item.id || Date.now()} // unique key
+                    key={item.id}
                     className="border-t border-gray-700 hover:bg-gray-800 transition"
                   >
+                    {/* Commodity Name */}
                     <td className="p-3">
                       {isEditing ? (
                         <input
@@ -159,6 +166,7 @@ const Commodities = () => {
                       )}
                     </td>
 
+                    {/* Quantity */}
                     <td className="p-3">
                       {isEditing ? (
                         <input
@@ -172,6 +180,7 @@ const Commodities = () => {
                       )}
                     </td>
 
+                    {/* Unit */}
                     <td className="p-3">
                       {isEditing ? (
                         <input
@@ -185,6 +194,7 @@ const Commodities = () => {
                       )}
                     </td>
 
+                    {/* Buy Price */}
                     <td className="p-3">
                       {isEditing ? (
                         <input
@@ -198,6 +208,7 @@ const Commodities = () => {
                       )}
                     </td>
 
+                    {/* Market Price */}
                     <td className="p-3">
                       {isEditing ? (
                         <input
@@ -211,8 +222,10 @@ const Commodities = () => {
                       )}
                     </td>
 
+                    {/* Value */}
                     <td className="p-3">₹{value.toLocaleString()}</td>
 
+                    {/* Profit */}
                     <td
                       className={`p-3 font-semibold ${
                         profit >= 0 ? "text-green-400" : "text-red-400"
@@ -221,14 +234,16 @@ const Commodities = () => {
                       ₹{profit.toLocaleString()}
                     </td>
 
+                    {/* ROI */}
                     <td
                       className={`p-3 font-semibold ${
-                        roi >= 0 ? "text-green-400" : "text-red-400"
+                        parseFloat(roi) >= 0 ? "text-green-400" : "text-red-400"
                       }`}
                     >
-                      {roi}%
+                      {roi.toFixed(2)}%
                     </td>
 
+                    {/* Actions */}
                     <td className="p-3 flex justify-end gap-2">
                       {isEditing ? (
                         <button

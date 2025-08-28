@@ -10,50 +10,17 @@ import ProtectedRoute from "./ProtectedRoute";
 const AppRouter = () => {
   return (
     <Routes>
-      {/* Auth */}
+      {/* Public Route */}
       <Route path="/login" element={<Login />} />
 
       {/* Protected Routes */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/real-estate"
-        element={
-          <ProtectedRoute>
-            <RealEstate />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/stocks"
-        element={
-          <ProtectedRoute>
-            <Stocks />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/commodities"
-        element={
-          <ProtectedRoute>
-            <Commodities />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/businesses"
-        element={
-          <ProtectedRoute>
-            <Businesses />
-          </ProtectedRoute>
-        }
-      />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/real-estate" element={<RealEstate />} />
+        <Route path="/stocks" element={<Stocks />} />
+        <Route path="/commodities" element={<Commodities />} />
+        <Route path="/businesses" element={<Businesses />} />
+      </Route>
     </Routes>
   );
 };

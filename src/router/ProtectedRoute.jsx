@@ -1,16 +1,15 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
-// Replace this with Auth Context later
 const isAuthenticated = () => {
   return localStorage.getItem("token") !== null;
 };
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = () => {
   if (!isAuthenticated()) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
-  return children;
+  return <Outlet />; // will render nested routes
 };
 
 export default ProtectedRoute;

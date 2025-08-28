@@ -3,7 +3,16 @@ import DashboardLayout from "../../layouts/DashboardLayout";
 import DarkColors from "../../styles/ColorSchema";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { dashboardService } from "../../services/dashboardService";
-import { Building, LineChart, Gem, Briefcase, Users } from "lucide-react";
+import {
+  Building,
+  LineChart,
+  Gem,
+  Briefcase,
+  Users,
+  ArrowUpRight,
+  ArrowDownRight,
+} from "lucide-react";
+import Spinner from "../../components/Spinner";
 
 const Dashboard = () => {
   const Colors = DarkColors;
@@ -12,33 +21,64 @@ const Dashboard = () => {
   const [portfolioTotals, setPortfolioTotals] = useState(null);
   const [counts, setCounts] = useState({});
   const [businessInfo, setBusinessInfo] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await dashboardService.getPortfolioSummary();
-      if (!res) return;
+      try {
+        const res = await dashboardService.getPortfolioSummary();
+        if (!res) throw new Error("No data received");
 
-      // 🔹 Set states
-      setCounts(res.counts || {});
-      setPortfolioTotals(res.portfolio || {});
-      setBusinessInfo(res.totals.businesses || {});
+        // 🔹 Set states
+        setCounts(res.counts || {});
+        setPortfolioTotals(res.portfolio || {});
+        setBusinessInfo(res.totals?.businesses || {});
 
-      // 🔹 Format breakdown for charts/cards
-      setPortfolioData(
-        res.breakdown.map((item) => ({
-          name: item.category,
-          invested: item.invested || 0,
-          current: item.current || 0,
-          valuation: item.valuation || 0,
-          value: item.current || item.valuation || item.invested || 0,
-        }))
-      );
+        // 🔹 Format breakdown for charts/cards
+        setPortfolioData(
+          (res.breakdown || []).map((item) => ({
+            name: item.category,
+            invested: item.invested || 0,
+            current: item.current || 0,
+            valuation: item.valuation || 0,
+            value: item.current || item.valuation || item.invested || 0,
+          }))
+        );
+      } catch (err) {
+        console.error("❌ Failed to fetch dashboard data:", err);
+        setError("Failed to load dashboard data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchData();
   }, []);
 
   const COLORS = [Colors.primary, Colors.secondary, Colors.accent, "#8884d8"];
-  const totalValue = portfolioData.reduce((sum, i) => sum + i.value, 0);
+  const totalValue = portfolioData.reduce((sum, i) => sum + i.value, 0,);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex justify-center items-center h-full">
+          <Spinner />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // 🔹 Error State
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-screen">
+          <p className="text-red-400 text-lg">{error}</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -58,15 +98,21 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-6 rounded-2xl shadow-lg text-center bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
               <h2 className="text-lg font-semibold">Total Invested</h2>
-              <p className="text-2xl font-bold mt-1">₹{portfolioTotals.invested.toLocaleString()}</p>
+              <p className="text-2xl font-bold mt-1">
+                ₹{portfolioTotals.invested?.toLocaleString() || 0}
+              </p>
             </div>
             <div className="p-6 rounded-2xl shadow-lg text-center bg-gradient-to-r from-green-500 to-emerald-600 text-white">
               <h2 className="text-lg font-semibold">Current Value</h2>
-              <p className="text-2xl font-bold mt-1">₹{portfolioTotals.current.toLocaleString()}</p>
+              <p className="text-2xl font-bold mt-1">
+                ₹{portfolioTotals.current?.toLocaleString() || 0}
+              </p>
             </div>
             <div className="p-6 rounded-2xl shadow-lg text-center bg-gradient-to-r from-purple-500 to-pink-600 text-white">
               <h2 className="text-lg font-semibold">Overall ROI</h2>
-              <p className="text-2xl font-bold mt-1">{portfolioTotals.roi.toFixed(1)}%</p>
+              <p className="text-2xl font-bold mt-1">
+                {isNaN(portfolioTotals.roi) ? "0.0" : portfolioTotals.roi.toFixed(1)}%
+              </p>
             </div>
           </div>
         )}
@@ -125,11 +171,23 @@ const Dashboard = () => {
                 </div>
 
                 <p className="mt-2 text-gray-300">
-                  Value: <span className="font-bold text-white">₹{card.value.toLocaleString()}</span>
+                  Value:{" "}
+                  <span className="font-bold text-white">
+                    ₹{card.value.toLocaleString()}
+                  </span>
                 </p>
                 {roi && (
-                  <p className={`font-bold mt-1 ${roi >= 0 ? "text-green-400" : "text-red-400"}`}>
+                  <p
+                    className={`font-bold mt-1 flex items-center gap-1 ${
+                      roi >= 0 ? "text-green-400" : "text-red-400"
+                    }`}
+                  >
                     ROI: {roi}%
+                    {roi >= 0 ? (
+                      <ArrowUpRight size={16} />
+                    ) : (
+                      <ArrowDownRight size={16} />
+                    )}
                   </p>
                 )}
                 <p className="text-gray-400">
@@ -162,9 +220,9 @@ const Dashboard = () => {
         )}
 
         {/* Portfolio Pie Chart */}
-        <div className="p-6 rounded-2xl shadow-lg mt-6 bg-gray-900 text-white">
+        <div className="p-6 rounded-2xl shadow-lg mt-10 bg-gray-900 text-white">
           <h2 className="font-semibold mb-4 text-lg text-indigo-400">Portfolio Allocation</h2>
-          <div className="w-full h-80 flex justify-center items-center">
+          <div className="w-full h-80 flex justify-center items-center ">
             <ResponsiveContainer>
               <PieChart>
                 <Pie
@@ -175,7 +233,7 @@ const Dashboard = () => {
                   outerRadius={120}
                   fill={Colors.primary}
                   dataKey="value"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
                 >
                   {portfolioData.map((_, index) => (
                     <Cell key={index} fill={COLORS[index % COLORS.length]} />

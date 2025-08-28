@@ -3,7 +3,16 @@ import { NavLink, useNavigate } from "react-router-dom";
 import Colors from "../styles/ColorSchema";
 
 // Import icons
-import { LayoutDashboard, Building2, LineChart, Gem, Briefcase } from "lucide-react";
+import {
+  LayoutDashboard,
+  Building2,
+  LineChart,
+  Gem,
+  Briefcase,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
 
 const links = [
   { name: "Dashboard", path: "/", icon: <LayoutDashboard size={20} /> },
@@ -22,7 +31,6 @@ const DashboardLayout = ({ children }) => {
     navigate("/login");
   };
 
-  // Detect mobile width
   const handleNavClick = () => {
     if (window.innerWidth < 1024) {
       setSidebarOpen(false);
@@ -30,51 +38,50 @@ const DashboardLayout = ({ children }) => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
-      {/* Sidebar Overlay (mobile only) */}
+    <div className="flex h-screen w-screen">
+      {/* Overlay for mobile */}
       <div
-        className={`fixed inset-0 z-40 bg-black bg-opacity-50 transition-opacity lg:hidden ${sidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
-          }`}
+        className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity lg:hidden 
+          ${sidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
         onClick={() => setSidebarOpen(false)}
       ></div>
 
       {/* Sidebar */}
-      {/* Sidebar */}
       <aside
         className={`fixed z-50 h-full transition-all duration-300 
-    ${sidebarOpen ? "left-0" : "-left-64"} 
-    lg:static lg:w-64 w-64 flex-shrink-0 flex flex-col shadow-lg overflow-y-auto`}
+          ${sidebarOpen ? "left-0" : "-left-72"} 
+          lg:static lg:w-64 w-72 flex-shrink-0 flex flex-col 
+          shadow-xl backdrop-blur-md border-r border-white/20`}
         style={{ backgroundColor: Colors.primary }}
       >
-        {/* Logo */}
-        <div className="flex items-center justify-between p-6 border-b border-white/20 flex-shrink-0">
-          <span className="text-white font-extrabold text-2xl tracking-wide">
+        {/* Logo & Close */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-white/20">
+          <span className="text-white font-extrabold text-xl tracking-wide">
             Portfolio
           </span>
           <button
             className="text-white text-2xl lg:hidden"
             onClick={() => setSidebarOpen(false)}
           >
-            ✕
+            <X />
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 mt-6 space-y-2">
+        {/* Nav Links */}
+        <nav className="flex-1 mt-6 space-y-1">
           {links.map((link) => (
             <NavLink
               to={link.path}
               key={link.name}
+              onClick={handleNavClick}
               className={({ isActive }) =>
-                `flex items-center gap-3 py-3 px-6 rounded-lg font-medium transition-colors ${isActive
-                  ? "text-white"
-                  : "text-gray-200 hover:bg-white/10 hover:text-white"
+                `flex items-center gap-3 py-3 px-6 mx-3 rounded-xl font-medium transition-all duration-200 
+                ${
+                  isActive
+                    ? "bg-white/20 text-white shadow-md"
+                    : "text-gray-300 hover:bg-white/10 hover:text-white"
                 }`
               }
-              style={({ isActive }) => ({
-                backgroundColor: isActive ? Colors.secondary : "transparent",
-              })}
-              onClick={handleNavClick}
             >
               {link.icon}
               <span>{link.name}</span>
@@ -82,39 +89,49 @@ const DashboardLayout = ({ children }) => {
           ))}
         </nav>
 
-        {/* Footer */}
-        <div className="p-6 border-t border-white/20 flex-shrink-0">
+        {/* Logout */}
+        <div className="p-6 border-t border-white/20">
           <button
             onClick={handleLogout}
-            className="w-full py-2 rounded-lg text-white font-semibold hover:opacity-90 transition"
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition shadow-md"
             style={{ backgroundColor: Colors.secondary }}
           >
+            <LogOut size={18} />
             Logout
           </button>
         </div>
       </aside>
 
-
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Navbar */}
         <header
-          className="flex justify-between items-center p-10 shadow lg:justify-end"
+          className="flex justify-between items-center px-6 py-4 shadow-md lg:justify-end"
           style={{ backgroundColor: Colors.primary }}
         >
-          {/* Hamburger for Mobile */}
+          {/* Hamburger */}
           <button
             onClick={() => setSidebarOpen(true)}
-            className="font-bold text-white text-2xl lg:hidden"
+            className="text-white text-2xl lg:hidden"
           >
-            ☰
+            <Menu />
           </button>
+
+          {/* Right Section (Profile / Notifications) */}
+          <div className="hidden lg:flex items-center gap-4 text-white">
+            <span className="font-medium">Hi, Shree Rimake Holdings</span>
+            {/* <img
+              src="%PUBLIC_URL%/favicon.png "
+              alt="avatar"
+              className="w-9 h-9 rounded-full border-2 border-white/30"
+            /> */}
+          </div>
         </header>
 
         {/* Page Content */}
         <main
-          className="flex-1 p-6 overflow-auto"
-          style={{ backgroundColor: Colors.background, minHeight: "100vh" }}
+          className="flex-1 p-6 overflow-y-auto"
+          style={{ backgroundColor: Colors.background }}
         >
           {children}
         </main>
