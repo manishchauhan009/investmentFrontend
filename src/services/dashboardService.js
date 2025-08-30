@@ -1,14 +1,12 @@
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_BACKEND_URL + "api/v1/dashboard";
+import API from "./api";
 
 export const dashboardService = {
   getPortfolioSummary: async () => {
     try {
-      const res = await axios.get(API_URL);
+      const res = await API.get("dashboard");
 
       if (res.data.success && res.data.data) {
-        return res.data.data; // 🔹 Return whole data object
+        return res.data.data;
       }
 
       return null;

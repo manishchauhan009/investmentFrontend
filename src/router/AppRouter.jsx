@@ -5,6 +5,7 @@ import Stocks from "../pages/Stocks/Stocks";
 import Commodities from "../pages/Commodities/Commodities";
 import Businesses from "../pages/Businesses/Businesses";
 import Login from "../pages/Auth/Login";
+import Signup from "../pages/Auth/Signup";
 import ProtectedRoute from "./ProtectedRoute";
 
 const AppRouter = () => {
@@ -12,6 +13,7 @@ const AppRouter = () => {
     <Routes>
       {/* Public Route */}
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Signup />} />
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>

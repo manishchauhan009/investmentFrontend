@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Colors from "../styles/ColorSchema";
 
@@ -26,10 +26,17 @@ const DashboardLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
+  // ✅ Safe parsing
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/login");
   };
+
+
 
   const handleNavClick = () => {
     if (window.innerWidth < 1024) {
@@ -76,10 +83,9 @@ const DashboardLayout = ({ children }) => {
               onClick={handleNavClick}
               className={({ isActive }) =>
                 `flex items-center gap-3 py-3 px-6 mx-3 rounded-xl font-medium transition-all duration-200 
-                ${
-                  isActive
-                    ? "bg-white/20 text-white shadow-md"
-                    : "text-gray-300 hover:bg-white/10 hover:text-white"
+                ${isActive
+                  ? "bg-white/20 text-white shadow-md"
+                  : "text-gray-300 hover:bg-white/10 hover:text-white"
                 }`
               }
             >
@@ -118,14 +124,18 @@ const DashboardLayout = ({ children }) => {
           </button>
 
           {/* Right Section (Profile / Notifications) */}
+          {/* Right Section (Profile / Notifications) */}
           <div className="hidden lg:flex items-center gap-4 text-white">
-            <span className="font-medium">Hi, Shree Rimake Holdings</span>
+            <span className="font-medium">
+              Hi, {user?.name || user?.email || "Guest"}
+            </span>
             {/* <img
-              src="%PUBLIC_URL%/favicon.png "
-              alt="avatar"
-              className="w-9 h-9 rounded-full border-2 border-white/30"
-            /> */}
+    src="%PUBLIC_URL%/favicon.png"
+    alt="avatar"
+    className="w-9 h-9 rounded-full border-2 border-white/30"
+  /> */}
           </div>
+
         </header>
 
         {/* Page Content */}

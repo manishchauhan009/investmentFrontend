@@ -22,9 +22,13 @@ const Login = () => {
       );
 
       if (res.data.success) {
-        localStorage.setItem("token", res.data.token); // store token
-        navigate("/"); // redirect to dashboard
-      } else {
+        // console.log("Login Data is ",res.data)
+        // console.log("User data is ",res.data.data)
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("user", JSON.stringify(res.data.data)); // store user
+        navigate("/");
+      }
+      else {
         setError(res.data.message || "Login failed");
       }
     } catch (err) {
