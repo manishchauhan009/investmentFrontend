@@ -8,7 +8,6 @@ import {
   LineChart,
   Gem,
   Briefcase,
-  Users,
   ArrowUpRight,
   ArrowDownRight,
 } from "lucide-react";
@@ -120,11 +119,6 @@ const Dashboard = () => {
         {/* Counts */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="p-4 rounded-2xl shadow bg-gray-800 text-center text-white">
-            <Users size={22} className="mx-auto mb-2" />
-            <p className="text-sm">Total Users</p>
-            <p className="text-lg font-bold">{counts.users || 0}</p>
-          </div>
-          <div className="p-4 rounded-2xl shadow bg-gray-800 text-center text-white">
             <Building size={22} className="mx-auto mb-2" />
             <p className="text-sm">Real Estate</p>
             <p className="text-lg font-bold">{counts.realEstate || 0}</p>
@@ -133,6 +127,17 @@ const Dashboard = () => {
             <LineChart size={22} className="mx-auto mb-2" />
             <p className="text-sm">Stocks</p>
             <p className="text-lg font-bold">{counts.stocks || 0}</p>
+            {/* Optional: show total quantity */}
+            {portfolioData.find(d => d.name === "Stocks")?.quantity && (
+              <p className="text-xs text-gray-400">
+                Qty: {portfolioData.find(d => d.name === "Stocks").quantity}
+              </p>
+            )}
+          </div>
+          <div className="p-4 rounded-2xl shadow bg-gray-800 text-center text-white">
+            <Gem size={22} className="mx-auto mb-2" />
+            <p className="text-sm">Commodities</p>
+            <p className="text-lg font-bold">{counts.commodities || 0}</p>
           </div>
           <div className="p-4 rounded-2xl shadow bg-gray-800 text-center text-white">
             <Briefcase size={22} className="mx-auto mb-2" />
@@ -140,6 +145,7 @@ const Dashboard = () => {
             <p className="text-lg font-bold">{counts.businesses || 0}</p>
           </div>
         </div>
+
 
         {/* Category Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -178,9 +184,8 @@ const Dashboard = () => {
                 </p>
                 {roi && (
                   <p
-                    className={`font-bold mt-1 flex items-center gap-1 ${
-                      roi >= 0 ? "text-green-400" : "text-red-400"
-                    }`}
+                    className={`font-bold mt-1 flex items-center gap-1 ${roi >= 0 ? "text-green-400" : "text-red-400"
+                      }`}
                   >
                     ROI: {roi}%
                     {roi >= 0 ? (
