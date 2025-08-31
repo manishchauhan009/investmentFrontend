@@ -1,6 +1,5 @@
 Absolutely! Here's a **fully formatted `README.md` in one file**, ready to copy-paste:
 
-````markdown
 # 💰 Investment Management App
 
 A **full-stack Investment Management Platform** built with the **MERN stack** to help users track, manage, and get insights into their investments across multiple asset classes.
@@ -45,18 +44,6 @@ Check out the live application here:
 
 ---
 
-## 📸 Screenshots
-
-![Dashboard](screenshots/dashboard.png)  
-*Dashboard showing all investments*
-
-![Add Investment](screenshots/add-investment.png)  
-*Add new investment to your portfolio*
-
-![Email Summary](screenshots/email-summary.png)  
-*Sample email summary received every 15 minutes*
-
----
 
 ## 💻 Installation
 
