@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import DarkColors from "../../styles/ColorSchema";
 import Spinner from "../../components/Spinner"; // ✅ Import Spinner
+import { cashPileService } from "../../services/cashPileService";
+
 import {
   getCommodities,
   addCommodity,
@@ -37,18 +39,18 @@ const Commodities = () => {
     fetchData();
   }, []);
 
-  // 🔄 Load & persist cash pile in localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("commoditiesCashPile");
-    if (stored) {
-      const parsed = Number(stored);
-      if (!isNaN(parsed)) setCashPile(parsed);
+  const fetchCashPile = async () => {
+    try {
+      const data = await cashPileService.getCashPile("commodities");
+      setCashPile(data?.amount || 0);
+    } catch (err) {
+      console.error("Failed to fetch stocks cash pile:", err);
     }
-  }, []);
+  };
+  fetchCashPile();
+}, []);
 
-  useEffect(() => {
-    localStorage.setItem("commoditiesCashPile", cashPile.toString());
-  }, [cashPile]);
 
   const handleChange = (id, field, value) => {
     setCommodities((prev) =>
@@ -117,12 +119,19 @@ const Commodities = () => {
     buyPrice > 0 ? ((marketPrice - buyPrice) / buyPrice) * 100 : 0;
 
   // 💰 Handle cash pile addition
-  const handleAddCashPile = () => {
-    const amount = Number(cashToAdd);
-    if (isNaN(amount)) return;
-    setCashPile((prev) => prev + amount);
+const handleAddCashPile = async () => {
+  const amount = Number(cashToAdd);
+  if (isNaN(amount) || !amount) return;
+
+  try {
+    const updated = await cashPileService.addToCashPile("commodities", amount);
+    setCashPile(updated.amount);
     setCashToAdd("");
-  };
+  } catch (err) {
+    console.error("Failed to update stocks cash pile:", err);
+  }
+};
+
 
   // 📊 Totals: total investment, value, profit, ROI
   const totals = commodities.reduce(

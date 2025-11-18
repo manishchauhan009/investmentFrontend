@@ -119,7 +119,7 @@ const DashboardLayout = ({ children }) => {
               <span
                 className="flex items-center justify-center w-8 h-8 rounded-lg"
                 style={{
-                  backgroundColor: "rgba(15,23,42,0.7)", // slightly darker than primary
+                  backgroundColor: "rgba(15,23,42,0.7)", 
                 }}
               >
                 {link.icon}

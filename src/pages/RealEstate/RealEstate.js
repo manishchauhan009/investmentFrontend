@@ -4,6 +4,8 @@ import DarkColors from "../../styles/ColorSchema";
 import { realEstateService } from "../../services/realEstateService";
 import { Edit, Trash2, Check, Plus } from "lucide-react";
 import Spinner from "../../components/Spinner"; // ✅ Import Spinner
+import { cashPileService } from "../../services/cashPileService";
+
 
 const RealEstate = () => {
   const Colors = DarkColors;
@@ -14,6 +16,7 @@ const RealEstate = () => {
   // 💰 Cash pile state
   const [cashPile, setCashPile] = useState(0);
   const [cashToAdd, setCashToAdd] = useState("");
+
 
   // Fetch properties
   useEffect(() => {
@@ -31,18 +34,18 @@ const RealEstate = () => {
     fetchProperties();
   }, []);
 
-  // 🔄 Optional: persist cash pile in localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("realEstateCashPile");
-    if (stored) {
-      const parsed = Number(stored);
-      if (!isNaN(parsed)) setCashPile(parsed);
-    }
+    const fetchCashPile = async () => {
+      try {
+        const data = await cashPileService.getCashPile("realEstate");
+        setCashPile(data?.amount || 0);
+      } catch (err) {
+        console.error("Failed to fetch stocks cash pile:", err);
+      }
+    };
+    fetchCashPile();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("realEstateCashPile", cashPile.toString());
-  }, [cashPile]);
 
   // Handle input changes for editing
   const handleChange = (id, field, value) => {
@@ -50,10 +53,10 @@ const RealEstate = () => {
       prev.map((p) =>
         p._id === id
           ? {
-              ...p,
-              [field]:
-                field === "name" || field === "location" ? value : Number(value),
-            }
+            ...p,
+            [field]:
+              field === "name" || field === "location" ? value : Number(value),
+          }
           : p
       )
     );
@@ -110,12 +113,19 @@ const RealEstate = () => {
   };
 
   // 💰 Handle cash pile addition
-  const handleAddCashPile = () => {
+  const handleAddCashPile = async () => {
     const amount = Number(cashToAdd);
-    if (isNaN(amount)) return;
-    setCashPile((prev) => prev + amount);
-    setCashToAdd("");
+    if (isNaN(amount) || !amount) return;
+
+    try {
+      const updated = await cashPileService.addToCashPile("realEstate", amount);
+      setCashPile(updated.amount);
+      setCashToAdd("");
+    } catch (err) {
+      console.error("Failed to update stocks cash pile:", err);
+    }
   };
+
 
   // 📊 Totals
   const totals = properties.reduce(
@@ -211,9 +221,8 @@ const RealEstate = () => {
               Total Gain / Loss
             </span>
             <span
-              className={`text-lg sm:text-xl font-semibold ${
-                totalGain >= 0 ? "text-green-400" : "text-red-400"
-              }`}
+              className={`text-lg sm:text-xl font-semibold ${totalGain >= 0 ? "text-green-400" : "text-red-400"
+                }`}
             >
               ₹{totalGain.toLocaleString()}
             </span>
@@ -227,9 +236,8 @@ const RealEstate = () => {
               Total ROI %
             </span>
             <span
-              className={`text-lg sm:text-xl font-semibold ${
-                totalROI >= 0 ? "text-green-400" : "text-red-400"
-              }`}
+              className={`text-lg sm:text-xl font-semibold ${totalROI >= 0 ? "text-green-400" : "text-red-400"
+                }`}
             >
               {totalROI}%
             </span>

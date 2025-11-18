@@ -1,4 +1,3 @@
-// Dark color palette for the investment portfolio app
 
 const DarkColors = {
   primary: "#1F2937",       // Dark slate / headers, main accents

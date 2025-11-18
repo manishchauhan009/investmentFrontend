@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import DarkColors from "../../styles/ColorSchema";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 import { dashboardService } from "../../services/dashboardService";
 import {
   Building,
@@ -29,12 +36,10 @@ const Dashboard = () => {
         const res = await dashboardService.getPortfolioSummary();
         if (!res) throw new Error("No data received");
 
-        // 🔹 Set states
         setCounts(res.counts || {});
         setPortfolioTotals(res.portfolio || {});
         setBusinessInfo(res.totals?.businesses || {});
 
-        // 🔹 Format breakdown for charts/cards
         setPortfolioData(
           (res.breakdown || []).map((item) => ({
             name: item.category,
@@ -55,8 +60,15 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  const COLORS = [Colors.primary, Colors.secondary, Colors.accent, "#8884d8"];
-  const totalValue = portfolioData.reduce((sum, i) => sum + i.value, 0,);
+  // Use theme-based accent colors for chart
+  const COLORS = [
+    Colors.secondary,
+    Colors.success,
+    "#F59E0B", // warm amber for contrast
+    Colors.error,
+  ];
+
+  const totalValue = portfolioData.reduce((sum, i) => sum + i.value, 0);
 
   if (loading) {
     return (
@@ -68,12 +80,13 @@ const Dashboard = () => {
     );
   }
 
-  // 🔹 Error State
   if (error) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-screen">
-          <p className="text-red-400 text-lg">{error}</p>
+          <p className="text-lg" style={{ color: Colors.error }}>
+            {error}
+          </p>
         </div>
       </DashboardLayout>
     );
@@ -81,91 +94,218 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-10" style={{ minHeight: "100vh" }}>
+      <div
+        className="p-4 sm:p-6 space-y-10"
+        style={{ minHeight: "100vh", backgroundColor: Colors.background }}
+      >
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold" style={{ color: Colors.secondary }}>
+          <h1
+            className="text-2xl sm:text-3xl font-bold"
+            style={{ color: Colors.secondary }}
+          >
             Dashboard
           </h1>
-          <p className="text-sm" style={{ color: Colors.textSecondary }}>
-            Get insights into your investments, assets, and performance
+          <p
+            className="text-sm sm:text-base mt-1"
+            style={{ color: Colors.textSecondary }}
+          >
+            Get insights into your investments, assets, and performance.
           </p>
         </div>
 
         {/* Portfolio Totals */}
         {portfolioTotals && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl shadow-lg text-center bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-              <h2 className="text-lg font-semibold">Total Invested</h2>
-              <p className="text-2xl font-bold mt-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <div
+              className="p-5 sm:p-6 rounded-2xl shadow-lg text-center"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(59,130,246,0.18), rgba(15,23,42,0.95))",
+                border: "1px solid rgba(59,130,246,0.4)",
+              }}
+            >
+              <h2
+                className="text-sm font-semibold"
+                style={{ color: Colors.textSecondary }}
+              >
+                Total Invested
+              </h2>
+              <p
+                className="text-2xl sm:text-3xl font-bold mt-1"
+                style={{ color: Colors.textPrimary }}
+              >
                 ₹{portfolioTotals.invested?.toLocaleString() || 0}
               </p>
             </div>
-            <div className="p-6 rounded-2xl shadow-lg text-center bg-gradient-to-r from-green-500 to-emerald-600 text-white">
-              <h2 className="text-lg font-semibold">Current Value</h2>
-              <p className="text-2xl font-bold mt-1">
+            <div
+              className="p-5 sm:p-6 rounded-2xl shadow-lg text-center"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(16,185,129,0.22), rgba(15,23,42,0.95))",
+                border: "1px solid rgba(16,185,129,0.5)",
+              }}
+            >
+              <h2
+                className="text-sm font-semibold"
+                style={{ color: Colors.textSecondary }}
+              >
+                Current Value
+              </h2>
+              <p
+                className="text-2xl sm:text-3xl font-bold mt-1"
+                style={{ color: Colors.textPrimary }}
+              >
                 ₹{portfolioTotals.current?.toLocaleString() || 0}
               </p>
             </div>
-            <div className="p-6 rounded-2xl shadow-lg text-center bg-gradient-to-r from-purple-500 to-pink-600 text-white">
-              <h2 className="text-lg font-semibold">Overall ROI</h2>
-              <p className="text-2xl font-bold mt-1">
-                {isNaN(portfolioTotals.roi) ? "0.0" : portfolioTotals.roi.toFixed(1)}%
+            <div
+              className="p-5 sm:p-6 rounded-2xl shadow-lg text-center"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(139,92,246,0.22), rgba(15,23,42,0.95))",
+                border: "1px solid rgba(139,92,246,0.5)",
+              }}
+            >
+              <h2
+                className="text-sm font-semibold"
+                style={{ color: Colors.textSecondary }}
+              >
+                Overall ROI
+              </h2>
+              <p
+                className="text-2xl sm:text-3xl font-bold mt-1"
+                style={{ color: Colors.textPrimary }}
+              >
+                {isNaN(portfolioTotals.roi)
+                  ? "0.0"
+                  : portfolioTotals.roi.toFixed(1)}
+                %
               </p>
             </div>
           </div>
         )}
 
         {/* Counts */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="p-4 rounded-2xl shadow bg-gray-800 text-center text-white">
-            <Building size={22} className="mx-auto mb-2" />
-            <p className="text-sm">Real Estate</p>
-            <p className="text-lg font-bold">{counts.realEstate || 0}</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          <div
+            className="p-4 rounded-2xl shadow text-center"
+            style={{ backgroundColor: Colors.card }}
+          >
+            <Building
+              size={22}
+              className="mx-auto mb-2"
+              style={{ color: Colors.secondary }}
+            />
+            <p
+              className="text-xs sm:text-sm"
+              style={{ color: Colors.textSecondary }}
+            >
+              Real Estate
+            </p>
+            <p
+              className="text-lg sm:text-xl font-bold"
+              style={{ color: Colors.textPrimary }}
+            >
+              {counts.realEstate || 0}
+            </p>
           </div>
-          <div className="p-4 rounded-2xl shadow bg-gray-800 text-center text-white">
-            <LineChart size={22} className="mx-auto mb-2" />
-            <p className="text-sm">Stocks</p>
-            <p className="text-lg font-bold">{counts.stocks || 0}</p>
-            {/* Optional: show total quantity */}
-            {portfolioData.find(d => d.name === "Stocks")?.quantity && (
-              <p className="text-xs text-gray-400">
-                Qty: {portfolioData.find(d => d.name === "Stocks").quantity}
-              </p>
-            )}
+
+          <div
+            className="p-4 rounded-2xl shadow text-center"
+            style={{ backgroundColor: Colors.card }}
+          >
+            <LineChart
+              size={22}
+              className="mx-auto mb-2"
+              style={{ color: Colors.secondary }}
+            />
+            <p
+              className="text-xs sm:text-sm"
+              style={{ color: Colors.textSecondary }}
+            >
+              Stocks
+            </p>
+            <p
+              className="text-lg sm:text-xl font-bold"
+              style={{ color: Colors.textPrimary }}
+            >
+              {counts.stocks || 0}
+            </p>
           </div>
-          <div className="p-4 rounded-2xl shadow bg-gray-800 text-center text-white">
-            <Gem size={22} className="mx-auto mb-2" />
-            <p className="text-sm">Commodities</p>
-            <p className="text-lg font-bold">{counts.commodities || 0}</p>
+
+          <div
+            className="p-4 rounded-2xl shadow text-center"
+            style={{ backgroundColor: Colors.card }}
+          >
+            <Gem
+              size={22}
+              className="mx-auto mb-2"
+              style={{ color: Colors.secondary }}
+            />
+            <p
+              className="text-xs sm:text-sm"
+              style={{ color: Colors.textSecondary }}
+            >
+              Commodities
+            </p>
+            <p
+              className="text-lg sm:text-xl font-bold"
+              style={{ color: Colors.textPrimary }}
+            >
+              {counts.commodities || 0}
+            </p>
           </div>
-          <div className="p-4 rounded-2xl shadow bg-gray-800 text-center text-white">
-            <Briefcase size={22} className="mx-auto mb-2" />
-            <p className="text-sm">Businesses</p>
-            <p className="text-lg font-bold">{counts.businesses || 0}</p>
+
+          <div
+            className="p-4 rounded-2xl shadow text-center"
+            style={{ backgroundColor: Colors.card }}
+          >
+            <Briefcase
+              size={22}
+              className="mx-auto mb-2"
+              style={{ color: Colors.secondary }}
+            />
+            <p
+              className="text-xs sm:text-sm"
+              style={{ color: Colors.textSecondary }}
+            >
+              Businesses
+            </p>
+            <p
+              className="text-lg sm:text-xl font-bold"
+              style={{ color: Colors.textPrimary }}
+            >
+              {counts.businesses || 0}
+            </p>
           </div>
         </div>
 
-
         {/* Category Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {portfolioData.map((card, index) => {
             const roi =
               card.invested > 0
-                ? (((card.current - card.invested) / card.invested) * 100).toFixed(1)
+                ? (
+                    ((card.current - card.invested) / card.invested) *
+                    100
+                  ).toFixed(1)
                 : null;
+
+            const roiNum = roi !== null ? parseFloat(roi) : null;
 
             return (
               <div
                 key={index}
-                className="p-5 rounded-2xl shadow-md hover:shadow-2xl transition transform hover:-translate-y-1 bg-gray-900 text-white"
+                className="p-5 rounded-2xl shadow-md hover:shadow-2xl transition transform hover:-translate-y-1"
+                style={{ backgroundColor: Colors.card }}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className="p-2 rounded-lg"
                     style={{
                       backgroundColor: COLORS[index % COLORS.length],
-                      color: "white",
+                      color: "#FFFFFF",
                     }}
                   >
                     {card.name === "Real Estate" && <Building size={22} />}
@@ -173,30 +313,53 @@ const Dashboard = () => {
                     {card.name === "Commodities" && <Gem size={22} />}
                     {card.name === "Businesses" && <Briefcase size={22} />}
                   </div>
-                  <h2 className="font-semibold text-lg">{card.name}</h2>
+                  <h2
+                    className="font-semibold text-lg"
+                    style={{ color: Colors.textPrimary }}
+                  >
+                    {card.name}
+                  </h2>
                 </div>
 
-                <p className="mt-2 text-gray-300">
+                <p
+                  className="mt-2 text-sm"
+                  style={{ color: Colors.textSecondary }}
+                >
                   Value:{" "}
-                  <span className="font-bold text-white">
+                  <span
+                    className="font-bold"
+                    style={{ color: Colors.textPrimary }}
+                  >
                     ₹{card.value.toLocaleString()}
                   </span>
                 </p>
-                {roi && (
+
+                {roiNum !== null && !isNaN(roiNum) && (
                   <p
-                    className={`font-bold mt-1 flex items-center gap-1 ${roi >= 0 ? "text-green-400" : "text-red-400"
-                      }`}
+                    className={`font-bold mt-1 flex items-center gap-1 text-sm ${
+                      roiNum >= 0
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
                   >
-                    ROI: {roi}%
-                    {roi >= 0 ? (
+                    ROI: {roiNum}%
+                    {roiNum >= 0 ? (
                       <ArrowUpRight size={16} />
                     ) : (
                       <ArrowDownRight size={16} />
                     )}
                   </p>
                 )}
-                <p className="text-gray-400">
-                  Share: {totalValue > 0 ? ((card.value / totalValue) * 100).toFixed(1) : 0}%
+
+                <p
+                  className="text-xs sm:text-sm mt-1"
+                  style={{ color: Colors.textSecondary }}
+                >
+                  Share:{" "}
+                  {totalValue > 0
+                    ? ((card.value / totalValue) * 100).toFixed(1)
+                    : 0}
+                  %
                 </p>
               </div>
             );
@@ -205,29 +368,81 @@ const Dashboard = () => {
 
         {/* Business Insights */}
         {businessInfo && (
-          <div className="p-6 rounded-2xl shadow-lg mt-6 bg-gray-900 text-white">
-            <h2 className="font-semibold mb-4 text-lg text-indigo-400">Business Insights</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-4 rounded-lg bg-gray-800 text-center">
-                <p className="text-sm text-gray-400">Valuation</p>
-                <p className="text-lg font-bold">₹{businessInfo.valuation?.toLocaleString()}</p>
+          <div
+            className="p-5 sm:p-6 rounded-2xl shadow-lg mt-4 sm:mt-6"
+            style={{ backgroundColor: Colors.card }}
+          >
+            <h2
+              className="font-semibold mb-4 text-lg"
+              style={{ color: Colors.secondary }}
+            >
+              Business Insights
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+              <div className="p-4 rounded-lg text-center"
+                style={{ backgroundColor: Colors.primary }}
+              >
+                <p
+                  className="text-xs sm:text-sm"
+                  style={{ color: Colors.textSecondary }}
+                >
+                  Valuation
+                </p>
+                <p
+                  className="text-lg sm:text-xl font-bold"
+                  style={{ color: Colors.textPrimary }}
+                >
+                  ₹{businessInfo.valuation?.toLocaleString() || 0}
+                </p>
               </div>
-              <div className="p-4 rounded-lg bg-gray-800 text-center">
-                <p className="text-sm text-gray-400">Revenue</p>
-                <p className="text-lg font-bold">₹{businessInfo.revenue?.toLocaleString()}</p>
+              <div className="p-4 rounded-lg text-center"
+                style={{ backgroundColor: Colors.primary }}
+              >
+                <p
+                  className="text-xs sm:text-sm"
+                  style={{ color: Colors.textSecondary }}
+                >
+                  Revenue
+                </p>
+                <p
+                  className="text-lg sm:text-xl font-bold"
+                  style={{ color: Colors.textPrimary }}
+                >
+                  ₹{businessInfo.revenue?.toLocaleString() || 0}
+                </p>
               </div>
-              <div className="p-4 rounded-lg bg-gray-800 text-center">
-                <p className="text-sm text-gray-400">Net Profit</p>
-                <p className="text-lg font-bold">₹{businessInfo.netProfit?.toLocaleString()}</p>
+              <div className="p-4 rounded-lg text-center"
+                style={{ backgroundColor: Colors.primary }}
+              >
+                <p
+                  className="text-xs sm:text-sm"
+                  style={{ color: Colors.textSecondary }}
+                >
+                  Net Profit
+                </p>
+                <p
+                  className="text-lg sm:text-xl font-bold"
+                  style={{ color: Colors.textPrimary }}
+                >
+                  ₹{businessInfo.netProfit?.toLocaleString() || 0}
+                </p>
               </div>
             </div>
           </div>
         )}
 
         {/* Portfolio Pie Chart */}
-        <div className="p-6 rounded-2xl shadow-lg mt-10 bg-gray-900 text-white">
-          <h2 className="font-semibold mb-4 text-lg text-indigo-400">Portfolio Allocation</h2>
-          <div className="w-full h-80 flex justify-center items-center ">
+        <div
+          className="p-5 sm:p-6 rounded-2xl shadow-lg mt-6 sm:mt-10"
+          style={{ backgroundColor: Colors.card }}
+        >
+          <h2
+            className="font-semibold mb-4 text-lg"
+            style={{ color: Colors.secondary }}
+          >
+            Portfolio Allocation
+          </h2>
+          <div className="w-full h-72 sm:h-80 flex justify-center items-center">
             <ResponsiveContainer>
               <PieChart>
                 <Pie
@@ -238,14 +453,30 @@ const Dashboard = () => {
                   outerRadius={120}
                   fill={Colors.primary}
                   dataKey="value"
-                  label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                  label={({ percent }) =>
+                    `${(percent * 100).toFixed(0)}%`
+                  }
                 >
                   {portfolioData.map((_, index) => (
-                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={index}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
-                <Tooltip formatter={(v) => `₹${v.toLocaleString()}`} />
-                <Legend />
+                <Tooltip
+                  formatter={(v) => `₹${v.toLocaleString()}`}
+                  contentStyle={{
+                    backgroundColor: Colors.primary,
+                    borderColor: Colors.secondary,
+                    color: Colors.textPrimary,
+                  }}
+                />
+                <Legend
+                  wrapperStyle={{
+                    color: Colors.textSecondary,
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>

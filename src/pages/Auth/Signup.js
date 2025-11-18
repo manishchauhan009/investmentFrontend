@@ -89,103 +89,279 @@ const Signup = () => {
 
   return (
     <div
-      className="flex justify-center items-center h-screen"
-      style={{ backgroundColor: Colors.background }}
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{
+        background: `
+          radial-gradient(circle at top, ${Colors.secondary}22 0, transparent 55%),
+          ${Colors.background}
+        `,
+      }}
     >
-      <form
-        className="bg-white p-8 rounded shadow-md w-96"
-        onSubmit={otpSent ? handleVerifyOtp : handleSignup}
-      >
-        <h2
-          className="text-2xl font-bold mb-6 text-center"
-          style={{ color: Colors.primary }}
+      <div className="w-full max-w-md">
+        <form
+          className="rounded-2xl shadow-2xl border backdrop-blur-xl p-8 sm:p-9"
+          style={{
+            backgroundColor: Colors.card,
+            borderColor: Colors.primary,
+          }}
+          onSubmit={otpSent ? handleVerifyOtp : handleSignup}
         >
-          {otpSent ? "Verify OTP" : "Sign Up"}
-        </h2>
-
-        {error && (
-          <p className="mb-4 text-center text-red-500 font-medium">{error}</p>
-        )}
-
-        {!otpSent ? (
-          <>
-            <input
-              type="text"
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-3 mb-4 border rounded"
-              required
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 mb-4 border rounded"
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 mb-4 border rounded"
-              required
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full p-3 rounded hover:opacity-90 transition"
-              style={{
-                backgroundColor: Colors.secondary,
-                color: Colors.background,
-              }}
+          {/* Header */}
+          <div className="mb-6 flex flex-col items-center">
+            <div
+              className="w-11 h-11 rounded-2xl flex items-center justify-center mb-3 shadow-lg"
+              style={{ backgroundColor: Colors.primary }}
             >
-              {loading ? "Sending OTP..." : "Sign Up"}
-            </button>
-          </>
-        ) : (
-          <>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="Enter OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              className="w-full p-3 mb-4 border rounded"
-              required
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full p-3 rounded hover:opacity-90 transition"
-              style={{
-                backgroundColor: Colors.secondary,
-                color: Colors.background,
-              }}
-            >
-              {loading ? "Verifying..." : "Verify OTP"}
-            </button>
-
-            <div className="mt-3 text-center">
-              {timer > 0 ? (
-                <p className="text-gray-600 text-sm">
-                  Resend OTP in {formatTime(timer)}
-                </p>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleSignup}
-                  className="mt-2 w-full p-3 rounded border hover:bg-gray-100"
-                >
-                  Resend OTP
-                </button>
-              )}
+              <span
+                className="text-xl font-bold"
+                style={{ color: Colors.secondary }}
+              >
+                P
+              </span>
             </div>
-          </>
-        )}
-      </form>
+            <h2
+              className="text-2xl sm:text-3xl font-bold text-center"
+              style={{ color: Colors.textPrimary }}
+            >
+              {otpSent ? "Verify OTP" : "Create account"}
+            </h2>
+            <p
+              className="mt-1 text-sm text-center"
+              style={{ color: Colors.textSecondary }}
+            >
+              {otpSent
+                ? `We’ve sent a verification code to ${email}.`
+                : "Sign up to start tracking your portfolio."}
+            </p>
+          </div>
+
+          {/* Error message */}
+          {error && (
+            <div
+              className="mb-4 px-3 py-2 rounded-lg text-sm flex items-center gap-2"
+              style={{ backgroundColor: "#B91C1C22", color: Colors.error }}
+            >
+              <span>⚠</span>
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* STEP 1: Signup form */}
+          {!otpSent ? (
+            <>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label
+                    className="text-sm font-medium"
+                    style={{ color: Colors.textSecondary }}
+                  >
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-lg text-sm outline-none border bg-transparent focus:ring-2 transition disabled:opacity-60"
+                    style={{
+                      borderColor: "#374151",
+                      color: Colors.textPrimary,
+                    }}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label
+                    className="text-sm font-medium"
+                    style={{ color: Colors.textSecondary }}
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-lg text-sm outline-none border bg-transparent focus:ring-2 transition disabled:opacity-60"
+                    style={{
+                      borderColor: "#374151",
+                      color: Colors.textPrimary,
+                    }}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label
+                    className="text-sm font-medium"
+                    style={{ color: Colors.textSecondary }}
+                  >
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Create a strong password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-lg text-sm outline-none border bg-transparent focus:ring-2 transition disabled:opacity-60"
+                    style={{
+                      borderColor: "#374151",
+                      color: Colors.textPrimary,
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-5 w-full py-2.5 rounded-lg font-semibold flex justify-center items-center gap-2 text-sm shadow-md hover:opacity-95 transition disabled:cursor-not-allowed disabled:opacity-70"
+                style={{
+                  backgroundColor: Colors.secondary,
+                  color: Colors.textPrimary,
+                }}
+              >
+                {loading ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                    Sending OTP...
+                  </>
+                ) : (
+                  "Send OTP"
+                )}
+              </button>
+            </>
+          ) : (
+            /* STEP 2: OTP Verification */
+            <>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label
+                    className="text-sm font-medium"
+                    style={{ color: Colors.textSecondary }}
+                  >
+                    OTP Code
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="Enter the 6-digit code"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-lg text-sm outline-none border bg-transparent focus:ring-2 transition"
+                    style={{
+                      borderColor: "#374151",
+                      color: Colors.textPrimary,
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-5 w-full py-2.5 rounded-lg font-semibold flex justify-center items-center gap-2 text-sm shadow-md hover:opacity-95 transition disabled:cursor-not-allowed disabled:opacity-70"
+                style={{
+                  backgroundColor: Colors.secondary,
+                  color: Colors.textPrimary,
+                }}
+              >
+                {loading ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                    Verifying...
+                  </>
+                ) : (
+                  "Verify OTP"
+                )}
+              </button>
+
+              <div className="mt-4 text-center">
+                {timer > 0 ? (
+                  <p
+                    className="text-xs sm:text-sm"
+                    style={{ color: Colors.textSecondary }}
+                  >
+                    Resend OTP in{" "}
+                    <span style={{ color: Colors.textPrimary }}>
+                      {formatTime(timer)}
+                    </span>
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSignup}
+                    disabled={loading}
+                    className="mt-2 w-full py-2.5 rounded-lg text-sm border transition hover:bg-white/5 disabled:opacity-60"
+                    style={{
+                      borderColor: "#374151",
+                      color: Colors.textPrimary,
+                    }}
+                  >
+                    Resend OTP
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Small footer text */}
+          <p
+            className="mt-4 text-[11px] text-center"
+            style={{ color: Colors.textSecondary }}
+          >
+            Already have an account?{" "}
+            <span
+              className="cursor-pointer font-medium"
+              style={{ color: Colors.secondary }}
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </span>
+          </p>
+        </form>
+      </div>
     </div>
   );
 };

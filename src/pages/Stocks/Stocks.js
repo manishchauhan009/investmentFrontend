@@ -4,6 +4,8 @@ import DarkColors from "../../styles/ColorSchema";
 import { getStocks, updateStock, deleteStock, addStock } from "../../services/stocksService";
 import { Edit, Trash2, Check, Plus } from "lucide-react";
 import Spinner from "../../components/Spinner"; // ✅ Import Spinner
+import { cashPileService } from "../../services/cashPileService";
+
 
 const Stocks = () => {
   const Colors = DarkColors;
@@ -11,27 +13,29 @@ const Stocks = () => {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false); // ✅ Track loading state
 
+
   // 💰 Cash pile state
   const [cashPile, setCashPile] = useState(0);
   const [cashToAdd, setCashToAdd] = useState("");
+
 
   // ✅ Load from backend on mount
   useEffect(() => {
     loadStocks();
   }, []);
 
-  // 🔄 Optional: persist cash pile in localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("cashPile");
-    if (stored) {
-      const parsed = Number(stored);
-      if (!isNaN(parsed)) setCashPile(parsed);
-    }
+    const fetchCashPile = async () => {
+      try {
+        const data = await cashPileService.getCashPile("stocks");
+        setCashPile(data?.amount || 0);
+      } catch (err) {
+        console.error("Failed to fetch stocks cash pile:", err);
+      }
+    };
+    fetchCashPile();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("cashPile", cashPile.toString());
-  }, [cashPile]);
 
   const loadStocks = async () => {
     setLoading(true);
@@ -50,9 +54,9 @@ const Stocks = () => {
       prev.map((stock) =>
         stock._id === id
           ? {
-              ...stock,
-              [field]: field === "name" ? value : Number(value),
-            }
+            ...stock,
+            [field]: field === "name" ? value : Number(value),
+          }
           : stock
       )
     );
@@ -115,12 +119,19 @@ const Stocks = () => {
   };
 
   // 💰 Handle cash pile addition
-  const handleAddCashPile = () => {
+  const handleAddCashPile = async () => {
     const amount = Number(cashToAdd);
-    if (isNaN(amount)) return;
-    setCashPile((prev) => prev + amount);
-    setCashToAdd("");
+    if (isNaN(amount) || !amount) return;
+
+    try {
+      const updated = await cashPileService.addToCashPile("stocks", amount);
+      setCashPile(updated.amount);
+      setCashToAdd("");
+    } catch (err) {
+      console.error("Failed to update stocks cash pile:", err);
+    }
   };
+
 
   // 📊 Calculate totals
   const totals = stocks.reduce(
@@ -214,9 +225,8 @@ const Stocks = () => {
               Total Net P/L
             </span>
             <span
-              className={`text-lg sm:text-xl font-semibold ${
-                totalNetPL >= 0 ? "text-green-400" : "text-red-400"
-              }`}
+              className={`text-lg sm:text-xl font-semibold ${totalNetPL >= 0 ? "text-green-400" : "text-red-400"
+                }`}
             >
               ₹{totalNetPL.toLocaleString()}
             </span>
@@ -230,9 +240,8 @@ const Stocks = () => {
               Total Return %
             </span>
             <span
-              className={`text-lg sm:text-xl font-semibold ${
-                totalReturnPercent >= 0 ? "text-green-400" : "text-red-400"
-              }`}
+              className={`text-lg sm:text-xl font-semibold ${totalReturnPercent >= 0 ? "text-green-400" : "text-red-400"
+                }`}
             >
               {totalReturnPercent}%
             </span>
@@ -381,18 +390,16 @@ const Stocks = () => {
 
                     {/* Net P/L */}
                     <td
-                      className={`p-2 sm:p-3 font-semibold ${
-                        netPL >= 0 ? "text-green-400" : "text-red-400"
-                      }`}
+                      className={`p-2 sm:p-3 font-semibold ${netPL >= 0 ? "text-green-400" : "text-red-400"
+                        }`}
                     >
                       ₹{netPL.toLocaleString()}
                     </td>
 
                     {/* Change % */}
                     <td
-                      className={`p-2 sm:p-3 ${
-                        changePercent >= 0 ? "text-green-400" : "text-red-400"
-                      }`}
+                      className={`p-2 sm:p-3 ${changePercent >= 0 ? "text-green-400" : "text-red-400"
+                        }`}
                     >
                       {changePercent}%
                     </td>
